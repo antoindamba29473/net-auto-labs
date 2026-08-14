@@ -49,7 +49,7 @@ defaults.device: iol
 defaults.devices.iol.clab.image: vrnetlab/cisco_iol:17.18.02
 defaults.devices.ioll2.clab.image: vrnetlab/cisco_iol:l2-17.18.02
 defaults.vlan.start_vlan_id: 100
-defaults.paths.append.custom.dirs: [ /home/antoin/netlab/snippets ]
+defaults.paths.append.custom.dirs: [ /path/to/netlab/snippets ]
 provider: clab
 
 # ============================================================
