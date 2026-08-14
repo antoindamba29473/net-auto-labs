@@ -1,0 +1,9 @@
+!
+ip multicast-routing
+!
+interface loopback 0
+ ip pim sparse-mode
+!
+interface range ethernet0/1-2
+ ip pim sparse-mode
+!

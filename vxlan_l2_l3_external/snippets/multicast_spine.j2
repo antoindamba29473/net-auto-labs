@@ -1,0 +1,12 @@
+!
+ip multicast-routing
+!
+interface loopback 0
+ ip pim sparse-mode
+!
+interface range ethernet0/1-3, ethernet1/0
+ ip pim sparse-mode
+!
+ip pim bsr-candidate Loopback0 0
+ip pim rp-candidate Loopback0
+!

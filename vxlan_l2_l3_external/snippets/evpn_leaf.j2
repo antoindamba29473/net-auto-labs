@@ -1,0 +1,7 @@
+router bgp 65000
+ address-family l2vpn evpn
+  neighbor 10.0.0.5 activate
+  neighbor 10.0.0.5 send-community extended
+  neighbor 10.0.0.6 activate
+  neighbor 10.0.0.6 send-community extended
+ exit-address-family
