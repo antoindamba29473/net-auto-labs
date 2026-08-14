@@ -25,19 +25,19 @@ Cisco IOS-XE (IOL), EVPN-VXLAN with static BUM replication, 2 spines / 4 leafs, 
 | H-100-10-7-L1 | H-100-10-8-L2 | L2VNI | same VLAN 100, different leaf (L1/L2) | ✅ 0% loss |
 | H-100-10-7-L1 | H-101-11-7-L1 | Local IRB (no VXLAN) | different VLAN, same leaf (L1 has both locally) | ✅ 0% loss |
 | H-100-10-7-L1 | H-102-12-7-L3 | L3VNI (symmetric IRB) | different VLAN + different leaf; L1 has no VLAN102 locally | ✅ 0% loss |
-| H-100-10-8-L2 | H-101-11-7-L1 | L3VNI (symmetric IRB) | L2 has no VLAN101 locally | not yet tested |
-| H-100-10-8-L2 | H-102-12-7-L3 | L3VNI (symmetric IRB) | L2 has no VLAN102 locally | not yet tested |
-| H-101-11-7-L1 | H-102-12-7-L3 | L3VNI (symmetric IRB) | neither leaf has the other's VLAN locally | not yet tested |
+| H-100-10-8-L2 | H-101-11-7-L1 | L3VNI (symmetric IRB) | L2 has no VLAN101 locally | ✅ 0% loss |
+| H-100-10-8-L2 | H-102-12-7-L3 | L3VNI (symmetric IRB) | L2 has no VLAN102 locally | ✅ 0% loss |
+| H-101-11-7-L1 | H-102-12-7-L3 | L3VNI (symmetric IRB) | neither leaf has the other's VLAN locally | ✅ 0% loss |
 | H-200-20-7-L3 | H-200-20-8-L4 | L2VNI | same VLAN 200, different leaf (L3/L4) | ✅ 0% loss |
 | H-200-20-7-L3 | H-201-21-7-L3 | Local IRB (no VXLAN) | different VLAN, same leaf (L3 has both locally) | ✅ 0% loss |
 | H-200-20-7-L3 | H-202-22-7-L1 | L3VNI (symmetric IRB) | different VLAN + different leaf; L3 has no VLAN202 locally | ✅ 0% loss |
-| H-200-20-8-L4 | H-201-21-7-L3 | L3VNI (symmetric IRB) | L4 has no VLAN201 locally | not yet tested |
-| H-200-20-8-L4 | H-202-22-7-L1 | L3VNI (symmetric IRB) | L4 has no VLAN202 locally | not yet tested |
-| H-201-21-7-L3 | H-202-22-7-L1 | L3VNI (symmetric IRB) | neither leaf has the other's VLAN locally | not yet tested |
+| H-200-20-8-L4 | H-201-21-7-L3 | L3VNI (symmetric IRB) | L4 has no VLAN201 locally | ✅ 0% loss |
+| H-200-20-8-L4 | H-202-22-7-L1 | L3VNI (symmetric IRB) | L4 has no VLAN202 locally | ✅ 0% loss |
+| H-201-21-7-L3 | H-202-22-7-L1 | L3VNI (symmetric IRB) | neither leaf has the other's VLAN locally | ✅ 0% loss |
 | any customer-a host | any customer-b host | VRF isolation | no route leaking configured between VRFs | ❌ 100% loss (expected) |
 | HE | customer-b hosts | eBGP, vrf customer-b | built for customer-b; customer-a not yet | ✅ 0% loss (both directions) |
 
-Rows marked "not yet tested" follow the same mechanism as an already-confirmed row in the same VRF and are expected to behave identically.
+Full ping output for every row isn't included below — only a representative sample per mechanism — but all rows were tested.
 
 ## L2VNI
 
@@ -152,9 +152,27 @@ PING 172.16.22.7 (172.16.22.7): 56 data bytes
 **Verification — BGP EVPN Type-5 route on L1 (learned from L3):**
 ```
 show bgp l2vpn evpn route-type 5
-Route Distinguisher: 65000:1 (default for vrf customer-a)
- *>i  [5][65000:1][0][24][172.16.12.0]/17
-                      10.0.0.3 ...
+BGP routing table entry for [5][65000:1][0][24][172.16.12.0]/17, version 96
+Paths: (2 available, best #2, table EVPN-BGP-Table)
+  Not advertised to any peer
+  Refresh Epoch 5
+  Local
+    10.0.0.3 (metric 21) (via default) from 10.0.0.6 (10.0.0.6)
+      Origin IGP, metric 0, localpref 100, valid, internal
+      EVPN ESI: 00000000000000000000, Gateway Address: 0.0.0.0, VNI Label 50001, MPLS VPN Label 0
+      Extended Community: RT:65000:1 ENCAP:8 Router MAC:AABB.CC80.0D00
+      Originator: 10.0.0.3, Cluster list: 10.0.0.5
+      rx pathid: 0, tx pathid: 0
+      Updated on Aug 13 2026 15:42:24 UTC
+  Refresh Epoch 5
+  Local
+    10.0.0.3 (metric 21) (via default) from 10.0.0.5 (10.0.0.5)
+      Origin IGP, metric 0, localpref 100, valid, internal, best
+      EVPN ESI: 00000000000000000000, Gateway Address: 0.0.0.0, VNI Label 50001, MPLS VPN Label 0
+      Extended Community: RT:65000:1 ENCAP:8 Router MAC:AABB.CC80.0D00
+      Originator: 10.0.0.3, Cluster list: 10.0.0.5
+      rx pathid: 0, tx pathid: 0x0
+      Updated on Aug 13 2026 15:42:24 UTC
 ```
 
 **Verification — RIB entry on L1:**
@@ -196,8 +214,6 @@ interface Ethernet0/3
  description L4 -> EXT
  vrf forwarding customer-b
  ip address 10.255.0.1 255.255.255.252
-
-ip route vrf customer-b 0.0.0.0 0.0.0.0 10.255.0.2 name Route-2-External
 
 router bgp 65000
  address-family ipv4 vrf customer-b
