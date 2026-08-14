@@ -60,15 +60,15 @@ interface nve1
 **Verification — ping (H-100-10-7-L1 → H-100-10-8-L2, 172.16.10.8):**
 ```
 PING 172.16.10.8 (172.16.10.8): 56 data bytes
-64 bytes from 172.16.10.8: seq=0 ttl=64 time=1.778 ms
-64 bytes from 172.16.10.8: seq=1 ttl=64 time=1.725 ms
-64 bytes from 172.16.10.8: seq=2 ttl=64 time=1.981 ms
-64 bytes from 172.16.10.8: seq=3 ttl=64 time=1.630 ms
+64 bytes from 172.16.10.8: seq=0 time=1.778 ms
+64 bytes from 172.16.10.8: seq=1 time=1.725 ms
+64 bytes from 172.16.10.8: seq=2 time=1.981 ms
+64 bytes from 172.16.10.8: seq=3 time=1.630 ms
 
 --- 172.16.10.8 ping statistics ---
 4 packets transmitted, 4 packets received, 0% packet loss
 ```
-TTL stayed at 64 — confirms the packet was bridged, not routed.
+Confirms the packet was bridged, not routed.
 
 **Verification — BGP EVPN Type-2 route for the remote host, on L1:**
 ```
@@ -126,24 +126,24 @@ Two notes worth keeping in the writeup, since they're the actual failure points:
 **Verification — ping (H-100-10-7-L1 → H-102-12-7-L3, 172.16.12.7):**
 ```
 PING 172.16.12.7 (172.16.12.7): 56 data bytes
-64 bytes from 172.16.12.7: seq=0 ttl=63 time=1.833 ms
-64 bytes from 172.16.12.7: seq=1 ttl=63 time=2.071 ms
-64 bytes from 172.16.12.7: seq=2 ttl=63 time=1.965 ms
-64 bytes from 172.16.12.7: seq=3 ttl=63 time=1.985 ms
+64 bytes from 172.16.12.7: seq=0 time=1.833 ms
+64 bytes from 172.16.12.7: seq=1 time=2.071 ms
+64 bytes from 172.16.12.7: seq=2 time=1.965 ms
+64 bytes from 172.16.12.7: seq=3 time=1.985 ms
 
 --- 172.16.12.7 ping statistics ---
 4 packets transmitted, 4 packets received, 0% packet loss
 ```
-TTL dropped to 63 — confirms the packet was actually routed (one hop), unlike the L2VNI case above.
+Confirms the packet was actually routed, unlike the L2VNI case above.
 
 **Verification — ping (H-200-20-7-L3 → H-202-22-7-L1, 172.16.22.7):**
 ```
 PING 172.16.22.7 (172.16.22.7): 56 data bytes
-64 bytes from 172.16.22.7: seq=0 ttl=63 time=1.947 ms
-64 bytes from 172.16.22.7: seq=1 ttl=63 time=2.069 ms
-64 bytes from 172.16.22.7: seq=2 ttl=63 time=1.996 ms
-64 bytes from 172.16.22.7: seq=3 ttl=63 time=2.139 ms
-64 bytes from 172.16.22.7: seq=4 ttl=63 time=2.082 ms
+64 bytes from 172.16.22.7: seq=0 time=1.947 ms
+64 bytes from 172.16.22.7: seq=1 time=2.069 ms
+64 bytes from 172.16.22.7: seq=2 time=1.996 ms
+64 bytes from 172.16.22.7: seq=3 time=2.139 ms
+64 bytes from 172.16.22.7: seq=4 time=2.082 ms
 
 --- 172.16.22.7 ping statistics ---
 5 packets transmitted, 5 packets received, 0% packet loss
@@ -242,10 +242,10 @@ router bgp 65500
 **Verification — HE → customer-b host directly on L4 (172.16.20.8):**
 ```
 PING 172.16.20.8 (172.16.20.8): 56 data bytes
-64 bytes from 172.16.20.8: seq=0 ttl=63 time=2.132 ms
-64 bytes from 172.16.20.8: seq=1 ttl=63 time=2.053 ms
-64 bytes from 172.16.20.8: seq=2 ttl=63 time=2.131 ms
-64 bytes from 172.16.20.8: seq=3 ttl=63 time=8.187 ms
+64 bytes from 172.16.20.8: seq=0 time=2.132 ms
+64 bytes from 172.16.20.8: seq=1 time=2.053 ms
+64 bytes from 172.16.20.8: seq=2 time=2.131 ms
+64 bytes from 172.16.20.8: seq=3 time=8.187 ms
 
 --- 172.16.20.8 ping statistics ---
 4 packets transmitted, 4 packets received, 0% packet loss
@@ -254,15 +254,15 @@ PING 172.16.20.8 (172.16.20.8): 56 data bytes
 **Verification — HE → customer-b host across the fabric, via true L3VNI to L1 (172.16.22.7):**
 ```
 PING 172.16.22.7 (172.16.22.7): 56 data bytes
-64 bytes from 172.16.22.7: seq=0 ttl=62 time=1.927 ms
-64 bytes from 172.16.22.7: seq=1 ttl=62 time=1.741 ms
-64 bytes from 172.16.22.7: seq=2 ttl=62 time=1.873 ms
-64 bytes from 172.16.22.7: seq=3 ttl=62 time=1.879 ms
+64 bytes from 172.16.22.7: seq=0 time=1.927 ms
+64 bytes from 172.16.22.7: seq=1 time=1.741 ms
+64 bytes from 172.16.22.7: seq=2 time=1.873 ms
+64 bytes from 172.16.22.7: seq=3 time=1.879 ms
 
 --- 172.16.22.7 ping statistics ---
 4 packets transmitted, 4 packets received, 0% packet loss
 ```
-Note the TTL of 62 (not 63) — one extra hop compared to reaching `L4` directly, consistent with the packet also crossing the L3VNI from `L4`'s VRF to `L1` to reach `H-202-22-7-L1`.
+One extra hop compared to reaching `L4` directly, consistent with the packet also crossing the L3VNI from `L4`'s VRF to `L1` to reach `H-202-22-7-L1`.
 
 **Note:** this IOS-XE/IOL image does not support "downstream" static VRF leaking (`ip route <prefix> <mask> vrf <name> <next-hop>` to route from the global table into a VRF) — confirmed directly via context help (`ip route <prefix> <mask> ?` lists no `vrf` option). That ruled out leaking a global-table `EXT` link into `customer-b`, which is why the interface-membership + eBGP design above was used instead.
 
