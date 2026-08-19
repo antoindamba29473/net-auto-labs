@@ -15,3 +15,7 @@ from every device — everything else is the real running config.
 - [`vxlan_l2_l3_external/`](./vxlan_l2_l3_external) — Cisco IOS-XE VXLAN EVPN:
   L2VNI bridging, symmetric IRB L3VNI routing, VRF isolation, and eBGP-based
   external connectivity.
+- [`mcp_netbox_netmiko/`](./mcp_netbox_netmiko) - two MCP servers giving an AI
+  read-only access to NetBox as inventory and read-only `show` command access
+  to live devices over Netmiko, plus a safety filter against config/write
+  commands and their IOS abbreviations.
