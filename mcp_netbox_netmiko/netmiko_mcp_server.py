@@ -162,7 +162,7 @@ def connect_and_run(device_name, command):
     return results
 
 @mcp.tool()
-def run_netbox_command():
+def get_netbox_devices():
     """Return the NetBox device inventory (name, role, device_type, primary_ip) used for connecting to devices"""
     get_netbox_device()
     return {
@@ -172,7 +172,7 @@ def run_netbox_command():
 
 @mcp.tool()
 def execute_command(device_name: str, command: str):
-    """Run a read-only 'show' command on the device (e.g. show version, show ip interface brief). Config/write commands are rejected."""
+    """Run a read-only 'show' command on a device and return its raw output. Config/write commands are rejected."""
     command = normalize_command(command)
 
     if not is_safe_show_command(command):
