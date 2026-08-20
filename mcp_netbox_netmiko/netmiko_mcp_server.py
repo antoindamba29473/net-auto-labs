@@ -81,6 +81,8 @@ def is_safe_show_command(command: str) -> bool:
 
 # Get devices from NetBox
 def get_netbox_device():
+    devices.clear()
+
     for device in nb.dcim.devices.all():
 
         primary_ip = str(device.primary_ip.address) if device.primary_ip else None
@@ -96,8 +98,8 @@ def get_netbox_device():
             }
 
     # Display devices found in NetBox
-    print("\nDevices found in NetBox:")
-    pprint(devices)
+    # print("\nDevices found in NetBox:")
+    # pprint(devices)
     return devices
 
 
