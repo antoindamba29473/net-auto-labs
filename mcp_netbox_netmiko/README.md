@@ -1,6 +1,6 @@
 # MCP servers: NetBox + Netmiko
 
-Two MCP servers giving an AI read-only access to NetBox as inventory, and read-only `show` command access to live network devices over Netmiko.
+Three MCP servers giving an AI read-only access to NetBox as inventory, read-only `show` command access to live network devices over Netmiko, and (in progress) config-relevant device data pulled from NetBox via GraphQL.
 
 Write-up: [Phase 3: Giving an AI Read-Only Access to the Fabric via MCP](https://anproit.com/labs/network-automation-phase3)
 
@@ -8,6 +8,7 @@ Write-up: [Phase 3: Giving an AI Read-Only Access to the Fabric via MCP](https:/
 
 - `netbox_mcp_server.py` - generated from NetBox's own OpenAPI schema via `FastMCP.from_openapi()`. Exposes NetBox's REST API as MCP tools, with every `DELETE` route excluded at the route-mapping level. Starting point adapted from [PacketCoders' FastMCP + NetBox walkthrough](https://www.packetcoders.io/how-to-dynamically-create-mcp-servers-with-fastmcp-2/).
 - `netmiko_mcp_server.py` - hand-written. Looks devices up in NetBox, then runs a validated `show` command over SSH via Netmiko. Includes a safety filter (`is_safe_show_command`) that blocks config/write commands and commands that could leak secrets (`show running-config`, `show tech`, etc.) - including their IOS abbreviations, not just the literal full command text.
+- `config_push_mcp_server.py` - work in progress toward config-push. Currently read-only: device connection lookup via `pynetbox` (same pattern as `netmiko_mcp_server.py`), plus a GraphQL-based tool (`get_netbox_device_information`) that pulls per-interface VLAN mode, tagged/untagged VLANs, VRF, and IP addresses for one device - richer, more precisely-shaped data than the REST-based servers return, since GraphQL only returns exactly the fields a query asks for. No config-write capability exists yet.
 
 ## Setup
 
@@ -25,6 +26,7 @@ cp .env.example .env
 ```bash
 uv run netbox_mcp_server.py
 uv run netmiko_mcp_server.py
+uv run config_push_mcp_server.py
 ```
 
 Or test either one standalone first with [MCP Inspector](https://github.com/modelcontextprotocol/inspector), no LLM required:
